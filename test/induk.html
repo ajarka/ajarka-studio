@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Induk tiruan Ajarka (uji Studio)</title>
+<style>
+  html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+  header { height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 12px; background: #0b1030; color: #fff; font-size: 13px; }
+  iframe { border: 0; width: 100%; height: calc(100% - 40px); display: block; }
+</style>
+</head>
+<body>
+<header><b>Induk tiruan</b><span id="status">menunggu Studio...</span></header>
+<iframe id="studio" allow="autoplay" src="http://localhost:4101/"></iframe>
+<script>
+  // Meniru halaman /studio Ajarka: menerima pesan, mencatat, dan menyediakan fungsi uji.
+  const STUDIO = 'http://localhost:4101'
+  const frame = document.getElementById('studio')
+  window.__log = []
+  window.__pesan = (type) => window.__log.filter((m) => m.type === type)
+  window.addEventListener('message', (e) => {
+    if (e.origin !== STUDIO) return
+    const m = e.data || {}
+    const ringkas = { ...m }
+    if (m.sb3) ringkas.sb3Bytes = m.sb3.byteLength
+    delete ringkas.sb3
+    window.__log.push({ t: performance.now(), ...ringkas })
+    if (m.type === 'studio:simpan') window.__sb3Terakhir = m.sb3
+    document.getElementById('status').textContent = m.type
+  })
+  window.__kirim = (pesan, transfer) => frame.contentWindow.postMessage(pesan, STUDIO, transfer || [])
+  window.__muatUrl = async (url, id) => {
+    const buf = await (await fetch(url)).arrayBuffer()
+    window.__kirim({ type: 'studio:muat', id, sb3: buf }, [buf])
+  }
+  window.__muatTerakhir = (id) => {
+    const salin = window.__sb3Terakhir.slice(0)
+    window.__kirim({ type: 'studio:muat', id, sb3: salin }, [salin])
+  }
+</script>
+</body>
+</html>

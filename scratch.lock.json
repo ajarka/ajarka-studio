@@ -1,0 +1,8 @@
+{
+  "studio": "0.1.0",
+  "package": "@scratch/scratch-gui",
+  "version": "15.2.0",
+  "tarball": "https://registry.npmjs.org/@scratch/scratch-gui/-/scratch-gui-15.2.0.tgz",
+  "integrity": "sha512-ZjKknkK6Suh0qtfCgaKNUt2Ilz/j6pWdTn6+Brrb2NLn8iXviccLfiSezAFvXqFqWaOMjac0sMfe8JpKkkOPTg==",
+  "license": "AGPL-3.0-only"
+}

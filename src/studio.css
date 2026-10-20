@@ -1,0 +1,27 @@
+/* Ajarka Studio - penyesuaian tampilan di atas editor Scratch resmi (tanpa mengubah kodenya). */
+html, body { margin: 0; height: 100%; overflow: hidden; }
+#app { position: absolute; inset: 0; }
+.sumber {
+  position: fixed; right: 8px; bottom: 6px; z-index: 9999;
+  font: 600 11px/1 system-ui, sans-serif; color: #64748b; background: rgba(255,255,255,.85);
+  padding: 4px 7px; border-radius: 6px; text-decoration: none;
+}
+.sumber:hover { color: #1d4ed8; }
+
+/* Merek: logo Scratch tidak dipakai di produk turunan (Studio tetap menyebut "dibangun dengan Scratch"). */
+[class*="menu-bar_scratch-logo"] { display: none !important; }
+
+/* Galeri ekstensi: sembunyikan kamera/wajah (privasi anak), yang mengirim data ke server luar,
+   dan perangkat keras yang butuh aplikasi Scratch Link. Pemblokiran sebenarnya di bridge.js. */
+[class*="library-item_library-item"]:has(img[src*="video-sensing"]),
+[class*="library-item_library-item"]:has(img[src*="faceSensing"]),
+[class*="library-item_library-item"]:has(img[src*="text2speech"]),
+[class*="library-item_library-item"]:has(img[src*="translate"]),
+[class*="library-item_library-item"]:has(img[src*="microbit"]),
+[class*="library-item_library-item"]:has(img[src*="ev3"]),
+[class*="library-item_library-item"]:has(img[src*="wedo"]),
+[class*="library-item_library-item"]:has(img[src*="boost"]),
+[class*="library-item_library-item"]:has(img[src*="gdxfor"]) { display: none !important; }
+
+/* Item menu yang disembunyikan JS (lihat rapikanMenu di bridge.js). */
+.ajarka-sembunyi { display: none !important; }
