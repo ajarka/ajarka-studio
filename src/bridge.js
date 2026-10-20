@@ -19,6 +19,7 @@
   var GUI = window.GUI
   var params = new URLSearchParams(location.search)
   var lihat = params.get('mode') === 'lihat'
+  if (lihat) document.body.classList.add('mode-lihat')
   var induk = null // origin induk yang sah, dikunci pada pesan pertama yang valid
   var vm = null
   var berubah = false

@@ -1,12 +1,16 @@
 /* Ajarka Studio - penyesuaian tampilan di atas editor Scratch resmi (tanpa mengubah kodenya). */
 html, body { margin: 0; height: 100%; overflow: hidden; }
 #app { position: absolute; inset: 0; }
+/* Tautan kode sumber (kewajiban AGPL). Mode sunting: ujung kanan menu bar ungu yang kosong
+   (sebelumnya di pojok kanan bawah dan menutupi tombol pilih latar). Mode lihat: kiri bawah. */
 .sumber {
-  position: fixed; right: 8px; bottom: 6px; z-index: 9999;
-  font: 600 11px/1 system-ui, sans-serif; color: #64748b; background: rgba(255,255,255,.85);
+  position: fixed; right: 14px; top: 16px; z-index: 9999;
+  font: 600 11px/1 system-ui, sans-serif; color: rgba(255,255,255,.75);
   padding: 4px 7px; border-radius: 6px; text-decoration: none;
 }
-.sumber:hover { color: #1d4ed8; }
+.sumber:hover { color: #fff; background: rgba(255,255,255,.15); }
+body.mode-lihat .sumber { top: auto; right: auto; left: 8px; bottom: 6px; color: #64748b; background: rgba(255,255,255,.85); }
+body.mode-lihat .sumber:hover { color: #1d4ed8; }
 
 /* Merek: logo Scratch tidak dipakai di produk turunan (Studio tetap menyebut "dibangun dengan Scratch"). */
 [class*="menu-bar_scratch-logo"] { display: none !important; }
