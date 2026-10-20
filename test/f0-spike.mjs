@@ -53,6 +53,11 @@ try {
   const { ctx, page } = await sesi(browser, { label: 'normal' })
   const studio = page.frame({ url: /localhost:4101/ })
 
+  // Induk yang listener-nya terlambat (hidrasi) menyapa studio:halo -> Studio mengulang studio:siap.
+  await page.evaluate(() => window.__kirim({ type: 'studio:halo' }))
+  const halo = await tungguPesan(page, 'studio:siap', 2, 5000).then(() => true).catch(() => false)
+  cek('studio:halo dijawab studio:siap (listener induk terlambat)', halo)
+  cek('studio:halo tidak memicu galat', (await page.evaluate(() => window.__pesan('studio:galat').length)) === 0)
 
   await page.evaluate(() => window.__muatUrl('/proyek-awal.sb3', 'm1'))
   await tungguPesan(page, 'studio:termuat')

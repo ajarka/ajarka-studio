@@ -15,6 +15,7 @@ Studio berjalan di origin sendiri (`studio.ajarka.com`) sebagai iframe di halama
 | Pesan | Arah | Isi |
 |---|---|---|
 | `studio:siap` | Studio -> induk | editor siap (`mode: edit/lihat`) |
+| `studio:halo` | induk -> Studio | dikirim saat listener induk terpasang; Studio menjawab `studio:siap` bila editor sudah siap (mencegah `siap` terlewat sebelum hidrasi halaman induk) |
 | `studio:muat` | induk -> Studio | `{id, sb3: ArrayBuffer}` |
 | `studio:termuat` | Studio -> induk | proyek selesai dimuat |
 | `studio:berubah` | Studio -> induk | ada perubahan oleh pengguna sejak muat/simpan terakhir |

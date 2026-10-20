@@ -8,7 +8,8 @@
  *                     studio:berubah            ada perubahan sejak simpan/muat terakhir
  *                     studio:simpan {id, sb3, projectJson}   hasil minta-simpan (sb3 = ArrayBuffer)
  *                     studio:galat {id, pesan}
- *   induk -> Studio : studio:muat {id, sb3}     muat proyek (ArrayBuffer .sb3)
+ *   induk -> Studio : studio:halo               "listener saya baru terpasang" -> dijawab studio:siap bila siap
+ *                     studio:muat {id, sb3}     muat proyek (ArrayBuffer .sb3)
  *                     studio:minta-simpan {id}  minta isi proyek saat ini
  * Mode lihat (guru): ?mode=lihat - pemutar saja, tanpa pengeditan.
  */
@@ -127,6 +128,13 @@
     if (induk && e.origin !== induk) return
     induk = e.origin
     var m = e.data || {}
+    // Induk yang listener-nya baru terpasang (mis. setelah hidrasi React) bisa melewatkan
+    // studio:siap pertama. Ia menyapa dengan studio:halo; jawab siap bila VM sudah siap
+    // (bila belum, studio:siap tetap terkirim saat VM siap).
+    if (m.type === 'studio:halo') {
+      if (vm) kirim({ type: 'studio:siap', versi: window.STUDIO_VERSI || null, mode: lihat ? 'lihat' : 'edit' })
+      return
+    }
     if (!vm) return kirim({ type: 'studio:galat', id: m.id, pesan: 'editor belum siap' })
 
     if (m.type === 'studio:muat') {
