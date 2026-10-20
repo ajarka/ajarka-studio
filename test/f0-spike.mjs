@@ -19,7 +19,7 @@ const OUT = path.join(ROOT, 'test/hasil')
 fs.mkdirSync(OUT, { recursive: true })
 fs.copyFileSync(FIXTURE, path.join(ROOT, 'test/proyek-awal.sb3'))
 
-const s1 = await serve(path.join(ROOT, 'build'), 4101)
+const s1 = await serve(path.resolve(ROOT, process.env.STUDIO_OUT || 'build'), 4101)
 const s2 = await serve(path.join(ROOT, 'test'), 4102)
 const hasil = { cek: {}, ukur: {} }
 const cek = (nama, ok, info) => { hasil.cek[nama] = { ok: !!ok, ...(info !== undefined ? { info } : {}) }; console.log(`${ok ? 'LULUS' : 'GAGAL'}  ${nama}${info !== undefined ? '  ' + JSON.stringify(info) : ''}`) }

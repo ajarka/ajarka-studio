@@ -1,0 +1,34 @@
+# Ajarka Studio - server statis (diproses envsubst oleh image nginx resmi saat start).
+# Variabel: STUDIO_FRAME_ANCESTORS = origin yang BOLEH menyematkan Studio sebagai iframe.
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+
+    # Berkas teks sudah dikompres saat build (STUDIO_PRECOMPRESS=1); sisanya dikompres langsung.
+    gzip_static on;
+    gzip on;
+    gzip_min_length 1024;
+    gzip_types application/javascript text/css application/json image/svg+xml text/plain;
+
+    # Studio hanya boleh tampil di dalam halaman Ajarka (bukan disematkan situs lain).
+    add_header Content-Security-Policy "frame-ancestors ${STUDIO_FRAME_ANCESTORS}" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # Kamera dimatikan (ekstensi kamera juga diblokir di config.js). Mikrofon dibiarkan: perekam suara Scratch.
+    add_header Permissions-Policy "camera=(), geolocation=(), payment=(), usb=()" always;
+
+    # Nama berkas ber-hash (chunks/, static/): aman di-cache selamanya.
+    location ~ ^/(chunks|static)/ {
+        expires max;
+        try_files $uri =404;
+    }
+
+    # Sisanya (index.html, config.js, bridge.js, bundle standalone, libraries) nama tetap:
+    # selalu validasi ulang (ETag -> 304) supaya pembaruan versi Scratch tidak bercampur.
+    location / {
+        expires -1;
+        try_files $uri $uri/index.html =404;
+    }
+}
