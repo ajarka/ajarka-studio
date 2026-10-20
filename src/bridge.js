@@ -95,6 +95,31 @@
     kirim({ type: 'studio:siap', versi: window.STUDIO_VERSI || null, mode: lihat ? 'lihat' : 'edit' })
   }, 50)
 
+  // ---------- thumbnail panggung (PNG 240x180) ----------
+  function ambilThumbnail() {
+    return new Promise(function (selesai) {
+      var r = vm && vm.renderer
+      if (!r || typeof r.requestSnapshot !== 'function') return selesai(null)
+      var batas = setTimeout(function () { selesai(null) }, 1500)
+      r.requestSnapshot(function (dataUrl) {
+        var img = new Image()
+        img.onload = function () {
+          var c = document.createElement('canvas')
+          c.width = 240
+          c.height = 180
+          c.getContext('2d').drawImage(img, 0, 0, 240, 180)
+          c.toBlob(function (blob) {
+            clearTimeout(batas)
+            if (!blob) return selesai(null)
+            blob.arrayBuffer().then(selesai, function () { selesai(null) })
+          }, 'image/png')
+        }
+        img.onerror = function () { clearTimeout(batas); selesai(null) }
+        img.src = dataUrl
+      })
+    })
+  }
+
   // ---------- terima perintah dari induk ----------
   window.addEventListener('message', function (e) {
     if (CFG.parentOrigins.indexOf(e.origin) === -1) return
@@ -118,11 +143,13 @@
           kirim({ type: 'studio:galat', id: m.id, pesan: 'gagal memuat proyek: ' + (err && err.message) })
         })
     } else if (m.type === 'studio:minta-simpan') {
-      vm.saveProjectSb3()
-        .then(function (blob) { return blob.arrayBuffer() })
-        .then(function (buf) {
+      Promise.all([vm.saveProjectSb3().then(function (blob) { return blob.arrayBuffer() }), ambilThumbnail()])
+        .then(function (hasil) {
+          var buf = hasil[0]
+          var thumb = hasil[1]
           berubah = false
-          kirim({ type: 'studio:simpan', id: m.id, sb3: buf, projectJson: vm.toJSON() }, [buf])
+          var transfer = thumb ? [buf, thumb] : [buf]
+          kirim({ type: 'studio:simpan', id: m.id, sb3: buf, projectJson: vm.toJSON(), thumbnail: thumb }, transfer)
         })
         .catch(function (err) {
           kirim({ type: 'studio:galat', id: m.id, pesan: 'gagal menyimpan: ' + (err && err.message) })

@@ -19,7 +19,7 @@ Studio berjalan di origin sendiri (`studio.ajarka.com`) sebagai iframe di halama
 | `studio:termuat` | Studio -> induk | proyek selesai dimuat |
 | `studio:berubah` | Studio -> induk | ada perubahan oleh pengguna sejak muat/simpan terakhir |
 | `studio:minta-simpan` | induk -> Studio | `{id}` |
-| `studio:simpan` | Studio -> induk | `{id, sb3: ArrayBuffer, projectJson}` |
+| `studio:simpan` | Studio -> induk | `{id, sb3: ArrayBuffer, projectJson, thumbnail: ArrayBuffer PNG 240x180 atau null}` |
 | `studio:galat` | Studio -> induk | `{id, pesan}` |
 
 Pesan hanya diterima dari origin di `parentOrigins` (`src/config.js`). Mode lihat untuk guru: `?mode=lihat`.

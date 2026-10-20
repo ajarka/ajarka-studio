@@ -23,7 +23,9 @@
     const m = e.data || {}
     const ringkas = { ...m }
     if (m.sb3) ringkas.sb3Bytes = m.sb3.byteLength
+    if (m.thumbnail) ringkas.thumbBytes = m.thumbnail.byteLength
     delete ringkas.sb3
+    delete ringkas.thumbnail
     window.__log.push({ t: performance.now(), ...ringkas })
     if (m.type === 'studio:simpan') window.__sb3Terakhir = m.sb3
     document.getElementById('status').textContent = m.type

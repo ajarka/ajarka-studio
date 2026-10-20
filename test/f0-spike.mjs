@@ -88,6 +88,7 @@ try {
   const simpan = (await page.evaluate(() => window.__pesan('studio:simpan')))[0]
   const pj = JSON.parse(simpan.projectJson)
   const namaSprite = pj.targets.filter((t) => !t.isStage).map((t) => t.name)
+  cek('simpan menyertakan thumbnail PNG', simpan.thumbBytes > 200, { thumbBytes: simpan.thumbBytes })
   cek('simpan mengembalikan .sb3 + project.json', simpan.sb3Bytes > 1000 && namaSprite.includes('KucingAjarka'), { sb3Bytes: simpan.sb3Bytes, namaSprite })
 
   // muat ulang hasil simpan ke Studio -> nama baru harus bertahan
