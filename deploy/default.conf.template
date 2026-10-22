@@ -1,17 +1,35 @@
-# Ajarka Studio - server statis (diproses envsubst oleh image nginx resmi saat start).
+# Ajarka Studio - server statis. Diproses envsubst oleh deploy/entrypoint.sh saat container start.
 # Variabel: STUDIO_FRAME_ANCESTORS = origin yang BOLEH menyematkan Studio sebagai iframe.
+
+# Cache per jenis berkas (dievaluasi pada $uri akhir, mis. "/" -> /index.html):
+#   - aset inti ber-hash isi (scratch-gui-standalone.<16 hex>.js, config, bridge, studio.css) dan
+#     chunks/ (nama ber-hash dari build Scratch): immutable 1 tahun - versi baru = nama baru;
+#   - static/: 1 tahun tanpa immutable (sebagian kecil ikon blocks-media bernama tetap);
+#   - sisanya (index.html, prefetch.html, versi.json, libraries, extension-worker.js): selalu
+#     divalidasi ulang (ETag -> 304) supaya rujukan ke nama ber-hash terbaru langsung dipakai.
+map $uri $studio_cache_control {
+    "~^/[a-z-]+\.[0-9a-f]{16}\.(js|css)$"   "public, max-age=31536000, immutable";
+    "~^/chunks/"                            "public, max-age=31536000, immutable";
+    "~^/static/"                            "public, max-age=31536000";
+    default                                 "no-cache";
+}
+
 server {
     listen 8080;
     server_name _;
     root /usr/share/nginx/html;
     server_tokens off;
 
-    # Berkas teks sudah dikompres saat build (STUDIO_PRECOMPRESS=1); sisanya dikompres langsung.
+    # Berkas teks sudah dikompres saat build (STUDIO_PRECOMPRESS=1): .br untuk klien yang menerima
+    # brotli, .gz untuk sisanya; berkas tanpa salinan dikompres gzip langsung.
+    brotli_static on;
     gzip_static on;
     gzip on;
+    gzip_vary on;
     gzip_min_length 1024;
     gzip_types application/javascript text/css application/json image/svg+xml text/plain;
 
+    add_header Cache-Control $studio_cache_control always;
     # Studio hanya boleh tampil di dalam halaman Ajarka (bukan disematkan situs lain).
     add_header Content-Security-Policy "frame-ancestors ${STUDIO_FRAME_ANCESTORS}" always;
     add_header X-Content-Type-Options "nosniff" always;
@@ -19,16 +37,7 @@ server {
     # Kamera dimatikan (ekstensi kamera juga diblokir di config.js). Mikrofon dibiarkan: perekam suara Scratch.
     add_header Permissions-Policy "camera=(), geolocation=(), payment=(), usb=()" always;
 
-    # Nama berkas ber-hash (chunks/, static/): aman di-cache selamanya.
-    location ~ ^/(chunks|static)/ {
-        expires max;
-        try_files $uri =404;
-    }
-
-    # Sisanya (index.html, config.js, bridge.js, bundle standalone, libraries) nama tetap:
-    # selalu validasi ulang (ETag -> 304) supaya pembaruan versi Scratch tidak bercampur.
     location / {
-        expires -1;
         try_files $uri $uri/index.html =404;
     }
 }
