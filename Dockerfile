@@ -13,7 +13,7 @@ COPY scratch.lock.json ./
 COPY scripts ./scripts
 COPY src ./src
 # Origin halaman induk yang boleh mengendalikan Studio lewat postMessage (TANPA localhost di produksi).
-ARG STUDIO_PARENT_ORIGINS=https://ajarka.com,https://www.ajarka.com
+ARG STUDIO_PARENT_ORIGINS=https://ajarka.com,https://www.ajarka.com,https://*.ajarka.com
 RUN STUDIO_PARENT_ORIGINS="$STUDIO_PARENT_ORIGINS" STUDIO_PRECOMPRESS=1 node scripts/build.mjs
 
 FROM alpine:3.20
@@ -22,7 +22,7 @@ RUN apk add --no-cache nginx nginx-mod-http-brotli gettext-envsubst \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 # Origin yang boleh menyematkan Studio sebagai iframe (CSP frame-ancestors, dipisah spasi).
-ENV STUDIO_FRAME_ANCESTORS="https://ajarka.com https://www.ajarka.com"
+ENV STUDIO_FRAME_ANCESTORS="https://ajarka.com https://www.ajarka.com https://*.ajarka.com"
 COPY deploy/default.conf.template /etc/nginx/studio.conf.template
 COPY deploy/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

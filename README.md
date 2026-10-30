@@ -23,7 +23,7 @@ Studio berjalan di origin sendiri (`studio.ajarka.com`) sebagai iframe di halama
 | `studio:simpan` | Studio -> induk | `{id, sb3: ArrayBuffer, projectJson, thumbnail: ArrayBuffer PNG 240x180 atau null}` |
 | `studio:galat` | Studio -> induk | `{id, pesan}` |
 
-Pesan hanya diterima dari origin di `parentOrigins` (`src/config.js`). Mode lihat untuk guru: `?mode=lihat`.
+Pesan hanya diterima dari origin di `parentOrigins` (`src/config.js`), yang boleh berisi pola subdomain satu tingkat seperti `https://*.ajarka.com` (halaman mitra di `<sub>.ajarka.com`; domain induk tetap harus didaftarkan sendiri). Mode lihat untuk guru: `?mode=lihat`.
 
 ## Build & uji
 
@@ -45,8 +45,8 @@ docker run -d --name ajarka-studio --restart always -p 127.0.0.1:8190:8080 ajark
 ```
 
 - Image = nginx Alpine + modul brotli resmi Alpine ([`deploy/default.conf.template`](deploy/default.conf.template), [`deploy/entrypoint.sh`](deploy/entrypoint.sh)), port 8080, health `/versi.json`. Klien yang menerima brotli mendapat `.br` (bundle 4,3 MB vs 5,7 MB gzip).
-- `parentOrigins` produksi dikunci saat build: `https://ajarka.com`, `https://www.ajarka.com` (tanpa localhost). Ubah lewat build arg `STUDIO_PARENT_ORIGINS`.
-- Header `Content-Security-Policy: frame-ancestors` (env `STUDIO_FRAME_ANCESTORS`) mencegah Studio disematkan situs selain Ajarka.
+- `parentOrigins` produksi dikunci saat build: `https://ajarka.com`, `https://www.ajarka.com`, `https://*.ajarka.com` (tanpa localhost). Ubah lewat build arg `STUDIO_PARENT_ORIGINS`.
+- Header `Content-Security-Policy: frame-ancestors` (env `STUDIO_FRAME_ANCESTORS`, bawaan `https://ajarka.com https://www.ajarka.com https://*.ajarka.com`) mencegah Studio disematkan situs selain Ajarka.
 - Cache: aset inti ber-hash dan `chunks/` `immutable` 1 tahun; `static/` 1 tahun; `index.html`, `prefetch.html`, `versi.json` dan berkas bernama tetap lain `no-cache` (ETag -> 304).
 - Reverse proxy (nginx VPS) cukup meneruskan ke `127.0.0.1:8190` dengan TLS untuk `studio.ajarka.com`.
 

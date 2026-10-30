@@ -21,6 +21,25 @@
   var lihat = params.get('mode') === 'lihat'
   if (lihat) document.body.classList.add('mode-lihat')
   var induk = null // origin induk yang sah, dikunci pada pesan pertama yang valid
+
+  // Origin induk sah: sama persis dengan entri parentOrigins, atau cocok pola subdomain satu tingkat
+  // "https://*.ajarka.com" (halaman mitra di <sub>.ajarka.com). Pola tidak mencakup domain induknya sendiri.
+  function originSah(o) {
+    for (var i = 0; i < CFG.parentOrigins.length; i++) {
+      var p = CFG.parentOrigins[i]
+      if (p === o) return true
+      var bintang = p.indexOf('://*.')
+      if (bintang > 0) {
+        var skema = p.slice(0, bintang + 3)
+        var akhiran = p.slice(bintang + 4) // ".ajarka.com"
+        if (o.indexOf(skema) === 0 && o.slice(-akhiran.length) === akhiran) {
+          var label = o.slice(skema.length, o.length - akhiran.length)
+          if (/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(label)) return true
+        }
+      }
+    }
+    return false
+  }
   var vm = null
   var berubah = false
   // Memuat proyek ikut memicu PROJECT_CHANGED (juga sesaat setelah selesai) - bukan perubahan oleh anak.
@@ -124,7 +143,7 @@
 
   // ---------- terima perintah dari induk ----------
   window.addEventListener('message', function (e) {
-    if (CFG.parentOrigins.indexOf(e.origin) === -1) return
+    if (!originSah(e.origin)) return
     if (e.source !== window.parent) return
     if (induk && e.origin !== induk) return
     induk = e.origin
