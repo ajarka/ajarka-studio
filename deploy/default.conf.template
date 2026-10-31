@@ -30,8 +30,10 @@ server {
     gzip_types application/javascript text/css application/json image/svg+xml text/plain;
 
     add_header Cache-Control $studio_cache_control always;
-    # Studio hanya boleh tampil di dalam halaman Ajarka (bukan disematkan situs lain).
-    add_header Content-Security-Policy "frame-ancestors ${STUDIO_FRAME_ANCESTORS}" always;
+    # Studio hanya boleh tampil di dalam halaman Ajarka (bukan disematkan situs lain). Proyek .sb3 berasal
+    # dari siswa, jadi skrip dibatasi ke berkas Studio sendiri. 'unsafe-eval' wajib: Scratch memakai new
+    # Function. Host scratch.mit.edu = galeri sprite, kostum, suara, latar.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.assets.scratch.mit.edu https://assets.scratch.mit.edu; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://assets.scratch.mit.edu https://cdn.assets.scratch.mit.edu; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors ${STUDIO_FRAME_ANCESTORS}" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
     # Kamera dimatikan (ekstensi kamera juga diblokir di config.js). Mikrofon dibiarkan: perekam suara Scratch.

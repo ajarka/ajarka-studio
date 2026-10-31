@@ -23,7 +23,8 @@
   var induk = null // origin induk yang sah, dikunci pada pesan pertama yang valid
 
   // Origin induk sah: sama persis dengan entri parentOrigins, atau cocok pola subdomain satu tingkat
-  // "https://*.ajarka.com" (halaman mitra di <sub>.ajarka.com). Pola tidak mencakup domain induknya sendiri.
+  // "https://*.ajarka.com" (halaman mitra di <sub>.ajarka.com). Pola tidak mencakup domain induknya sendiri
+  // dan subdomain cadangan (cdn, api, hub, ...): host itu bukan halaman mitra.
   function originSah(o) {
     for (var i = 0; i < CFG.parentOrigins.length; i++) {
       var p = CFG.parentOrigins[i]
@@ -34,7 +35,8 @@
         var akhiran = p.slice(bintang + 4) // ".ajarka.com"
         if (o.indexOf(skema) === 0 && o.slice(-akhiran.length) === akhiran) {
           var label = o.slice(skema.length, o.length - akhiran.length)
-          if (/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(label)) return true
+          var cadangan = (CFG.reservedSubdomains || []).indexOf(label) !== -1
+          if (!cadangan && /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(label)) return true
         }
       }
     }
